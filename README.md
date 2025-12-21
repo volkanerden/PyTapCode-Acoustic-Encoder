@@ -1,32 +1,76 @@
-PyTap: Linguistic Encoder & Acoustic Synthesis Pipeline
-PyTap is a modular Python-based toolkit designed to handle the end-to-end transformation of natural language into procedurally generated acoustic signals. Originally developed for an archival reconstruction project, the system provides a robust framework for linguistic encryption and high-fidelity audio synthesis.
+# PyTap-Acoustic-Encoder
 
-# System Architecture
-The pipeline consists of two distinct, decoupled scripts that can be used independently or as a sequence.
+`PyTap` is a specialized dual-stage Python pipeline designed for linguistic encryption and procedural acoustic reconstruction. It provides a bridge between natural language and the "Tap Code" cipher—a communication method historically used by prisoners.
 
-Phase 1: Linguistic Encryption (converter.py)
-This module handles the transition from human language to a structured cipher.
+This system was specifically developed for the archival art exhibition **"Uninterrupted"** (by Doğa Yirik, opening 2026) to sonify 1980s Turkish prison records.
 
-Linguistic Normalization: Automates the expansion of Turkish numerals into textual form to ensure cipher consistency.
+## Features
 
-Custom Cipher Mapping: Implements a 5x6 tap-code matrix optimized for specific character sets.
+* **Turkish Linguistic Processing:** Native support for Turkish characters and automated expansion of numerical values into text.
+* **Decoupled Pipeline:** Separate modules for text-to-cipher encoding and cipher-to-audio synthesis.
+* **Stochastic Audio Engine:** Uses randomized sample selection (10+ variations) to simulate human tapping variance and organic resonance.
+* **Sample-Accurate DSP:** Built on NumPy for precise buffer mixing and peak normalization.
 
-Data Serialization: Outputs the encoded cipher to a .docx format, maintaining structural markers (slashes and spaces) for the audio synthesis phase.
+## The Cipher: Turkish Tap Code Matrix
 
-Phase 2: Procedural Audio Synthesis (tapcode_to_wav.py)
-This module reconstructs the cipher as a high-fidelity acoustic performance.
+The system utilizes a custom **5x6 Tap Code Matrix** specifically mapped for the Turkish alphabet. Each character is represented by two sets of "taps": the first set indicates the **Row**, and the second set indicates the **Column**.
 
-Stochastic Sample Selection: To avoid the "machine-gun effect," the engine utilizes a pool of 10+ randomized "click" samples for every onset, simulating human variance and natural resonance.
+|  | 1 | 2 | 3 | 4 | 5 | 6 |
+| --- | --- | --- | --- | --- | --- | --- |
+| **1** | A | B | C | Ç | D | E |
+| **2** | F | G | Ğ | H | I | İ |
+| **3** | J | K | L | M | N | O |
+| **4** | Ö | P | R | S | Ş | T |
+| **5** | U | Ü | V | Y | Z | - |
 
-Digital Signal Processing (DSP): Uses NumPy for sample-accurate buffer mixing and SciPy for resampling logic.
+*Example:* The letter **"D"** is Row 1, Column 5. It is encoded as `.` (pause) `.....`
 
-Dynamic Timing: Features user-editable parameters for HIT_INTERVAL, GROUP_SILENCE, and WORD_SILENCE to control the rhythmic "cadence" of the output.
+## Usage
 
-Peak Optimization: Integrated normalization logic (target 0.98) to ensure broadcast-quality signal integrity.
+### 1. Encode Text to Cipher
 
-# Technical Stack
-Language: Python 3
+The first script reads a `.docx` file, expands numbers, removes punctuation, and generates the tap-code text.
 
-Libraries: NumPy, SciPy, SoundFile, python-docx
+```bash
+# Run from terminal
+python converter.py input.docx encoded_output.docx
 
-Audio Logic: Stochastic triggering, Procedural Synthesis, Peak Normalization.
+```
+
+### 2. Synthesize Cipher to Audio
+
+The second script reads the encoded `.docx` and generates a high-fidelity `.wav` file.
+
+```bash
+# Run from terminal
+python tapcode_to_wav.py encoded_output.docx output_audio.wav
+
+```
+
+## Technical Insights
+
+### Audio Logic & Signal Consistency
+
+The synthesis engine is designed to maintain the integrity of the source audio samples:
+
+* **Inherited Sample Rate:** The script automatically detects the sample rate of the first loaded "click" sample and sets the global `TARGET_SAMPLE_RATE` to match it. This ensures no unintended resampling occurs during the mixing process.
+* **Bit Depth (PCM_16):** The system outputs a high-fidelity 16-bit PCM signal by default (`OUTPUT_SUBTYPE = "PCM_16"`), providing a professional standard for exhibition playback.
+* **Stochastic Selection:** For every "dot" in the cipher, the engine picks a random sample from a provided pool of `tap_*.wav` files. This avoids the "machine-gun effect" and mimics the physical reality of human tapping.
+
+### Linguistic Logic (`converter.py`)
+
+* **Turkish Number Expansion:** Converts digits (e.g., "1970") into full Turkish words ("bin dokuz yüz yetmiş") before encoding.
+* **Cipher Formatting:** Generates a slash-terminated (`/`) string where each word is clearly separated for the audio parser.
+
+### DSP & Timing (`tapcode_to_wav.py`)
+
+* **Temporal Precision:** Features user-editable parameters for `HIT_INTERVAL_SEC`, `GROUP_SILENCE_SEC`, and `WORD_SILENCE_SEC` to control the rhythmic cadence.
+* **Peak Optimization:** The final audio buffer is normalized to **0.98** using NumPy to ensure maximum headroom without digital clipping.
+
+## Dependencies
+
+* `Python 3.x`
+* `NumPy` (Signal processing)
+* `SciPy` (Resampling logic)
+* `SoundFile` (WAV exporting)
+* `python-docx` (Word document parsing)
