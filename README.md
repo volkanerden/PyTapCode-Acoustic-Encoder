@@ -1,6 +1,6 @@
 # PyTapCode-Acoustic-Encoder
 
-`PyTapCode` is a specialized dual-stage Python pipeline designed for linguistic encryption and procedural acoustic reconstruction. It provides a bridge between natural language and the "Tap Code" cipher—a communication method historically used by prisoners.
+`PyTapCode` is a specialized dual-stage Python pipeline designed for linguistic encryption and procedural acoustic reconstruction. It provides a bridge between natural language and the "Tap Code" cipher, a communication method historically used by prisoners.
 
 This system was specifically developed for the archival art exhibition **"Uninterrupted"** (by Doğa Yirik, opening 2026) to sonify 1980s Turkish prison records.
 
